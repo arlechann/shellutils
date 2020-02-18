@@ -1,0 +1,5 @@
+#!/bin/bash
+
+FIELD="${1:-0}"
+
+awk "{print \$$FIELD}"
