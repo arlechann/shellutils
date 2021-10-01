@@ -1,0 +1,25 @@
+#!/bin/bash
+
+docker_cli_plugin_metadata() {
+local vendor="arlechann"
+local url="https://github.com/arlechann/shellutils"
+local description="Remove selected container"
+local version="0.0.1"
+cat <<-EOF
+{"SchemaVersion":"0.1.0","Vendor":"${vendor}","Version":"${version}","ShortDescription":"${description}","URL":"${url}"}
+EOF
+}
+
+frm() {
+	local pss=$(sudo docker ps -a)
+	echo "$pss" | fzf --header-lines=1 -m | awk '$0=$1' | xargs -r sudo docker rm
+}
+
+case "$1" in
+	docker-cli-plugin-metadata)
+		docker_cli_plugin_metadata
+		;;
+	*)
+		frm
+		;;
+esac

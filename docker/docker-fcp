@@ -1,0 +1,61 @@
+#!/bin/bash
+
+docker_cli_plugin_metadata() {
+local vendor="arlechann"
+local url="https://github.com/arlechann/shellutils"
+local description="Copy files between host and container"
+local version="0.0.1"
+cat <<-EOF
+{"SchemaVersion":"0.1.0","Vendor":"${vendor}","Version":"${version}","ShortDescription":"${description}","URL":"${url}"}
+EOF
+}
+
+usage() {
+cat <<EOF
+Usage: fdcp <command>
+
+command
+	pull	copy from container to host
+	push	copy from host to container
+EOF
+}
+
+pull() {
+	local pss=$(sudo docker ps -a)
+	local container_id=$(echo "$pss" | fzf --header-lines=1 | awk '$0=$1')
+	[ -z "$container_id" ] && exit 1
+	local container_file=$(sudo docker exec $container_id find / | fzf --header="container item")
+	[ -n "$container_file" ] && sudo docker cp "$container_id:$container_file" ${2:-.}
+}
+
+push() {
+	local pss=$(sudo docker ps -a)
+	local container_id=$(echo "$pss" | fzf --header-lines=1 | awk '$0=$1')
+	[ -z "$container_id" ] && exit 1
+	local container_dir=$(sudo docker exec "$container_id" find / | fzf --header="container dir")
+	[ -n "$container_dir" ] && sudo docker cp "$2" "$container_id:$container_dir"
+}
+
+case "$1" in
+	docker-cli-plugin-metadata)
+		docker_cli_plugin_metadata
+		exit 0
+		;;
+esac
+
+case "$2" in
+	pull)
+		pull
+		;;
+	push)
+		if [ ! -e "$3" ]; then
+			usage
+			exit 1
+		fi
+		push
+		;;
+	*)
+		usage
+		exit 1
+		;;
+esac
