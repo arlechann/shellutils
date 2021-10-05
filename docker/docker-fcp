@@ -25,7 +25,7 @@ pull() {
 	local container_id=$(echo "$pss" | fzf --header-lines=1 | awk '$0=$1')
 	[ -z "$container_id" ] && exit 1
 	local container_file=$(sudo docker exec $container_id find / | fzf --header="container item")
-	[ -n "$container_file" ] && sudo docker cp "$container_id:$container_file" ${2:-.}
+	[ -n "$container_file" ] && sudo docker cp "$container_id:$container_file" ${1:-.}
 }
 
 push() {
@@ -33,7 +33,7 @@ push() {
 	local container_id=$(echo "$pss" | fzf --header-lines=1 | awk '$0=$1')
 	[ -z "$container_id" ] && exit 1
 	local container_dir=$(sudo docker exec "$container_id" find / | fzf --header="container dir")
-	[ -n "$container_dir" ] && sudo docker cp "$2" "$container_id:$container_dir"
+	[ -n "$container_dir" ] && sudo docker cp "$1" "$container_id:$container_dir"
 }
 
 case "$1" in
@@ -45,14 +45,14 @@ esac
 
 case "$2" in
 	pull)
-		pull
+		pull $3
 		;;
 	push)
 		if [ ! -e "$3" ]; then
 			usage
 			exit 1
 		fi
-		push
+		push $3
 		;;
 	*)
 		usage
