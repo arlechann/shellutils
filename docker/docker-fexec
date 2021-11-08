@@ -12,7 +12,7 @@ EOF
 
 fexec() {
 	local pss=$(sudo docker ps -a)
-	echo "$pss" | fzf --header-lines=1 | awk '$0=$1' | xargs -r -I{} sudo docker exec -it {} "${2:-/bin/bash}"
+	echo "$pss" | fzf --header-lines=1 | awk '$0=$1' | xargs -ro -I{} sudo docker exec -it {} "${2:-/bin/bash}"
 }
 
 case "$1" in
